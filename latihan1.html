@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Vue Beginners 1</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Quicksand&display=swap">
+    <style>
+        body{
+            margin: 5%;
+            font-family: 'Quicksand', sans-serif;
+        }
+
+        .active{
+            background: salmon;
+            border: 0;
+            padding: 5px;
+        }
+        
+    </style>
+</head>
+<body>
+
+    <div id="app">
+        <header>
+            <img src="image/logo.png" width="80" height="80">
+            <h1 v-html="link"></h1>
+            <h1 v-text="name.toUpperCase()"></h1>
+            <h1 v-text="bilangan"></h1>
+            <p>Bilangan ini adalah bilangan {{ infobilangan }}</p>
+            <p>
+                <!-- v-on:click -->
+                <button @click="handleclick">Ditekan</button>
+            </p>
+
+            <!-- v-bind:src -->
+            <img :src="gambar" width="200">
+            
+            <h1>{{ getname() +' '+ message.toUpperCase() }}</h1>
+            <h1>{{ namalengkap }}</h1>
+            <h1 v-once>{{ isactive ? 'success' : 'danger' }}</h1>
+            <h1>{{ bilangan }}</h1>
+            <p>The Progressive JavaScript Framework</p>
+        <br>
+            <button :class="{active: menu === 'home'}" @click=" menu = 'home' ">Home</button>
+            <button :class="{active: menu === 'about'}" @click=" menu = 'about' ">About</button>
+            <button :class="{active: menu === 'blog'}" @click=" menu = 'blog' ">Blog</button>
+        <br>
+            <input type="text" v-model="name">
+
+            
+            <h4>daftar kelas ({{kelas.length}})</h4>
+
+                <template v-if="kelas.length >= 1">
+                <!-- <ul v-show="kelas.length >= 1"> -->
+                    <ul>
+                        <li v-for="(j, i) of kelas">{{ i+1 }} - {{ j }}</li>
+                    </ul>
+                </template>
+                <li v-else>kelas belum tersedia</li>
+                
+            <br>
+                <p>{{ kelas }}</p>
+                <div>
+                    <label><input type="checkbox" value="React" v-model="kelas">React</label>
+                    <label><input type="checkbox" value="VueJs" v-model="kelas">VueJs</label>
+                    <label><input type="checkbox" value="Angular" v-model="kelas">Angular</label>
+                </div>
+            
+            <!-- <ul>
+                <li v-for="k in kelas">{{ k }}</li>
+            </ul>
+            <ul>
+                <li v-for="item of kelas" v-text=item></li>
+            </ul> -->
+            
+            
+            <h3>Perulangan</h3>
+            <ul>
+                <li v-for="x in 5">{{ x }}</li>
+            </ul>
+            <h4>mencari bilangan genap dari: {{numbers}}</h4>
+            <ul>
+                <li v-for="x in caribilangangenap(numbers)">{{ x }}</li>
+            </ul>
+
+
+        </header>
+        
+        <footer>
+            <p>copyright 2021</p>
+        </footer>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.12"></script>
+    <script>
+        const member = {
+            name: 'Hishna difa',
+            message: "hello word!",
+            isactive: true,
+            qty: 3,
+            namadepan: "koje",
+            namabelakang: "janggot",
+            bilangan: 5,
+            link: '<a href="">kelas</a>',
+            gambar: "image/2.JPG",
+            menu: "home",
+            kelas: ['golang', 'php'],
+            numbers: [1, 2, 3, 4, 5]
+        }
+        const vm = new Vue({
+            el: '#app',
+            data: member,
+            methods: {
+                getname: function(){
+                    return 'Hello, '+this.name
+                },
+                ubahnama: function(namabaru){
+                    this.name = namabaru
+                    return this.getname()
+                },
+                handleclick: function(){
+                    this.bilangan++
+                    this.gambar = 'image/1.jpg'
+                },
+                caribilangangenap: (nomor) => {
+                    return nomor.filter(angka=>{
+                        return angka%2 == 0
+                    })
+                }
+            },
+            computed: {
+                totalbayar: function(){
+                    return this.qty * 10000
+                },
+                namalengkap: function(){
+                    return this.namadepan +' '+ this.namabelakang
+                },
+                infobilangan: function(){
+                    return this.bilangan%2 === 0 ? 'genap' : 'ganjil'
+                }
+            }
+        })
+    </script>
+</body>
+</html>

@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Vue Beginners 2</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Quicksand&display=swap">
+    <style>
+        body{
+            margin: 5%;
+            font-family: 'Quicksand', sans-serif;
+        }
+
+        .active{
+            background: salmon;
+            border: 0;
+            padding: 5px;
+        }
+        
+    </style>
+</head>
+<body>
+
+    <div id="app">
+        <header>
+            <img src="image/logo.png" width="80" height="80">
+        <br>
+            <h4>daftar kelas ({{kelas.length}})</h4>
+            <template v-if="kelas.length >= 1">
+            <!-- <ul v-show="kelas.length >= 1"> -->
+                <ul>
+                    <li v-for="(j, i) of kelas">{{ i+1 }} - {{ j }}</li>
+                </ul>
+            </template>
+            <li v-else>kelas belum tersedia</li>
+        <br>
+            <!-- <a :class="{active: menu === 'home'}" href="#" @click="gantimenu('home', $event)">Home</a>
+            <a :class="{active: menu === 'about'}" href="#" @click="gantimenu('about', $event)">About</a>
+            <a :class="{active: menu === 'blog'}" href="#" @click="gantimenu('blog', $event)">Blog</a> -->
+            <a :class="{active: menu === 'home'}" href="#" @click.prevent="gantimenu('home')">Home</a>
+            <a :class="{active: menu === 'about'}" href="#" @click.prevent="gantimenu('about')">About</a>
+            <a :class="{active: menu === 'blog'}" href="#" @click.prevent="gantimenu('blog')">Blog</a>
+        <br>
+            <h2>Form Submit</h2>
+            <p><input type="text" placeholder="Nama Kelas" v-on:keyup.enter="submit"></p>
+        </header>
+        
+        <footer>
+            <p>copyright 2021</p>
+        </footer>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.12"></script>
+    <script>
+        const member = {
+            name: 'Hishna difa',
+            message: "hello word!",
+            isactive: true,
+            qty: 3,
+            namadepan: "koje",
+            namabelakang: "janggot",
+            bilangan: 5,
+            link: '<a href="">kelas</a>',
+            gambar: "image/2.JPG",
+            menu: "home",
+            kelas: ['golang', 'php'],
+            numbers: [1, 2, 3, 4, 5]
+        }
+        const vm = new Vue({
+            el: '#app',
+            data: member,
+            methods: {
+                getname: function(){
+                    return 'Hello, '+this.name
+                },
+                ubahnama: function(namabaru){
+                    this.name = namabaru
+                    return this.getname()
+                },
+                handleclick: function(){
+                    this.bilangan++
+                    this.gambar = 'image/1.jpg'
+                },
+                caribilangangenap: (nomor) => {
+                    return nomor.filter(angka=>{
+                        return angka%2 == 0
+                    })
+                },
+                gantimenu: function(menubaru, event){
+                    // event.preventDefault()
+                    // console.log(event)
+                    this.menu = menubaru
+                },
+                submit: function(event){
+                    let text = event.target.value
+                    //console.log(text)
+                    // this.kelas.push(text)
+                    this.kelas.unshift(text)
+                    event.target.value = ""
+                }
+            },
+            computed: {
+                totalbayar: function(){
+                    return this.qty * 10000
+                },
+                namalengkap: function(){
+                    return this.namadepan +' '+ this.namabelakang
+                },
+                infobilangan: function(){
+                    return this.bilangan%2 === 0 ? 'genap' : 'ganjil'
+                }
+            }
+        })
+    </script>
+</body>
+</html>
