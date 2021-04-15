@@ -21,69 +21,89 @@
 <body>
 
     <div id="app">
-        <header>
-            <img src="image/logo.png" width="80" height="80">
-        <br>
-            <a :class="{active: menu === 'home'}" href="#" @click.prevent="gantimenu('home')">Home</a>
-            <a :class="{active: menu === 'about'}" href="#" @click.prevent="gantimenu('about')">About</a>
-            <a :class="{active: menu === 'blog'}" href="#" @click.prevent="gantimenu('blog')">Blog</a>
-     
-        </header>
+        <header-component></header-component>
         
-        <footer>
-            <p>copyright 2021</p>
-        </footer>
+        <main>
+            <kelas />
+        </main>
+
+        <footer-component></footer-component>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/vue@2.6.12"></script>
     <script>
+        Vue.component('header-component', {
+            template: `
+            <header>
+                <img src="image/logo.png" width="80" height="80">
+                <p>BELAJAR JAVASCRIPT</p>
+                <!-- <p>{{pesan}}</p> -->
+                <p v-text="pesan"></p>
+            </header>
+            `,
+            data: function(){
+                return {
+                    pesan: 'hello, Component!'
+                }
+            }
+        })
+        Vue.component('footer-component', {
+            template: `
+            <footer>
+            <p>copyright 2021</p>
+            </footer>
+            `
+        })
+        Vue.component('kelas', {
+            template: `
+        <div>
+            <h2>Tambah Kelas</h2>
+            <!-- <p><input type="text" placeholder="Nama Kelas" v-on:keyup.enter="submit"></p> -->
+            <p><input type="text" placeholder="Nama Kelas" v-on:keyup.enter="submit" v-model="kelasbaru"></p>
+        <hr>
+            <h4>daftar kelas ({{kelas.length}})</h4>
+            <template v-if="kelas.length >= 1">
+            <!-- <ul v-show="kelas.length >= 1"> -->
+                <ul>
+                    <li v-for="(j, i) of kelas">{{ i+1 }} - {{ j }}</li>
+                </ul>
+            </template>
+            <li v-else>kelas belum tersedia</li>
+        <br>
+            <!-- <a :class="{active: menu === 'home'}" href="#" @click="gantimenu('home', $event)">Home</a>
+            <a :class="{active: menu === 'about'}" href="#" @click="gantimenu('about', $event)">About</a>
+            <a :class="{active: menu === 'blog'}" href="#" @click="gantimenu('blog', $event)">Blog</a> -->
+            <a :class="{active: menu === 'home'}" href="#" @click.prevent="gantimenu('home')">Home</a>
+            <a :class="{active: menu === 'about'}" href="#" @click.prevent="gantimenu('about')">About</a>
+            <a :class="{active: menu === 'blog'}" href="#" @click.prevent="gantimenu('blog')">Blog</a>
+        </div>
+            `,
+            data: function(){
+                return{
+                    menu: "home",
+                    kelas: ['golang', 'php'],
+                    kelasbaru: ""
+                }
+            },
+            methods: {
+                gantimenu: function(menubaru, event){
+                    // event.preventDefault()
+                    // console.log(event)
+                    this.menu = menubaru
+                },
+                submit: function(){
+                    this.kelas.unshift(this.kelasbaru)
+                    this.kelasbaru = ""
+                }
+            }
+        })
         const member = {
-            name: 'Hishna difa',
-            message: "hello word!",
-            isactive: true,
-            qty: 3,
-            namadepan: "koje",
-            namabelakang: "janggot",
-            bilangan: 5,
-            link: '<a href="">kelas</a>',
-            gambar: "image/2.JPG",
-            menu: "home",
-            kelas: ['golang', 'php'],
-            numbers: [1, 2, 3, 4, 5]
+          
         }
         const vm = new Vue({
             el: '#app',
             data: member,
-            methods: {
-                getname: function(){
-                    return 'Hello, '+this.name
-                },
-                ubahnama: function(namabaru){
-                    this.name = namabaru
-                    return this.getname()
-                },
-                handleclick: function(){
-                    this.bilangan++
-                    this.gambar = 'image/1.jpg'
-                },
-                caribilangangenap: (nomor) => {
-                    return nomor.filter(angka=>{
-                        return angka%2 == 0
-                    })
-                },
-                gantimenu: function(menubaru, event){
-                    this.menu = menubaru
-                }
-            },
             computed: {
-                totalbayar: function(){
-                    return this.qty * 10000
-                },
-                namalengkap: function(){
-                    return this.namadepan +' '+ this.namabelakang
-                },
-                infobilangan: function(){
-                    return this.bilangan%2 === 0 ? 'genap' : 'ganjil'
-                }
+                
             }
         })
     </script>

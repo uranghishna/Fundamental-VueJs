@@ -41,7 +41,8 @@
             <a :class="{active: menu === 'blog'}" href="#" @click.prevent="gantimenu('blog')">Blog</a>
         <br>
             <h2>Form Submit</h2>
-            <p><input type="text" placeholder="Nama Kelas" v-on:keyup.enter="submit"></p>
+            <!-- <p><input type="text" placeholder="Nama Kelas" v-on:keyup.enter="submit"></p> -->
+            <p><input type="text" placeholder="Nama Kelas" v-on:keyup.enter="submit" v-model="kelasbaru"></p>
         </header>
         
         <footer>
@@ -62,7 +63,8 @@
             gambar: "image/2.JPG",
             menu: "home",
             kelas: ['golang', 'php'],
-            numbers: [1, 2, 3, 4, 5]
+            numbers: [1, 2, 3, 4, 5],
+            kelasbaru: ""
         }
         const vm = new Vue({
             el: '#app',
@@ -89,12 +91,21 @@
                     // console.log(event)
                     this.menu = menubaru
                 },
-                submit: function(event){
-                    let text = event.target.value
-                    //console.log(text)
-                    // this.kelas.push(text)
-                    this.kelas.unshift(text)
-                    event.target.value = ""
+                // submit: function(event){
+                //     let text = event.target.value
+                //     //console.log(text)
+                //     // this.kelas.push(text)
+                //     this.kelas.unshift(text)
+                //     event.target.value = ""
+                // }
+                // submit: function(event){
+                //     let text = event.target.value
+                //     this.kelas.unshift(this.kelasbaru)
+                //     this.kelasbaru = ""
+                // }
+                submit: function(){
+                    this.kelas.unshift(this.kelasbaru)
+                    this.kelasbaru = ""
                 }
             },
             computed: {
