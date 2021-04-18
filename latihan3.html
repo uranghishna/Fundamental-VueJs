@@ -2,8 +2,9 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Vue Beginners 3</title>
+    <link rel="icon" href="image/logo.png">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Quicksand&display=swap">
+    <title>Vue Beginners 3</title>
     <style>
         body{
             margin: 5%;
@@ -21,23 +22,77 @@
 <body>
 
     <div id="app">
-        <header-component></header-component>
+        <header-component nama="VueJs" gambar="image/logo.png"></header-component>
         
+        <nav>
+            <router-link to="/">Home</router-link>
+            <router-link to="/about">About</router-link>
+            <router-link to="/kelas">Kelas</router-link>
+        </nav>
+
         <main>
-            <kelas />
+            <div>
+                <!-- <kelas v-bind:item="kelas" :input="kelasbaru"/> -->
+                <!-- <kelas v-bind:item="kelas" v-on:submitkelas="submitkelas" v-on:hapuskelas="hapuskelas"></kelas> -->
+                <hr>
+                <!-- <home></home> -->
+                <router-view v-bind:item="kelas" v-on:submitkelas="submitkelas" v-on:hapuskelas="hapuskelas"></router-view>
+            </div>
         </main>
 
-        <footer-component></footer-component>
+        <footer-component>
+            <p>copyright 2021</p>
+        </footer-component>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/vue@2.6.12"></script>
+    <script src="https://unpkg.com/vue-router/dist/vue-router.js"></script>
     <script>
+        const Home = {
+            template: '<div>Home</div>'
+        }
+        const About = {
+            template: '<div>About</div>'
+        }
+        const Kelas = {
+            props: ['item'],
+            template: `
+            <div>
+                <h2>Tambah Kelas</h2>
+                <!-- <p><input type="text" placeholder="Nama Kelas" v-on:keyup.enter="submit"></p> -->
+                <p><input type="text" placeholder="Nama Kelas" v-on:keyup.enter="$emit('submitkelas', $event)"></p>
+            <hr>
+                <h4>daftar kelas ({{item.length}})</h4>
+                <template v-if="item.length >= 1">
+                <!-- <ul v-show="item.length >= 1"> -->
+                    <ul>
+                        <li v-for="(j, i) of item">{{ i+1 }} - {{ j }}
+                        <a href="" v-on:click.prevent="$emit('hapuskelas', i)">hapus</a>
+                        </li>
+                    </ul>
+                </template>
+                <li v-else>kelas belum tersedia</li>
+            </div>
+                `,
+            data: function(){
+                return{
+                }
+            },
+            methods: {
+               
+            }
+        }
+      
+      
         Vue.component('header-component', {
+            props: ['nama', 'gambar'],
             template: `
             <header>
-                <img src="image/logo.png" width="80" height="80">
-                <p>BELAJAR JAVASCRIPT</p>
+                <img :src="gambar" width="80" height="80">
+                
                 <!-- <p>{{pesan}}</p> -->
-                <p v-text="pesan"></p>
+                <!-- <p v-text="pesan"></p> -->
+
+                <p>{{ 'Hello, '+nama }}</p>
             </header>
             `,
             data: function(){
@@ -49,59 +104,40 @@
         Vue.component('footer-component', {
             template: `
             <footer>
-            <p>copyright 2021</p>
+            <slot></slot>
             </footer>
             `
         })
-        Vue.component('kelas', {
-            template: `
-        <div>
-            <h2>Tambah Kelas</h2>
-            <!-- <p><input type="text" placeholder="Nama Kelas" v-on:keyup.enter="submit"></p> -->
-            <p><input type="text" placeholder="Nama Kelas" v-on:keyup.enter="submit" v-model="kelasbaru"></p>
-        <hr>
-            <h4>daftar kelas ({{kelas.length}})</h4>
-            <template v-if="kelas.length >= 1">
-            <!-- <ul v-show="kelas.length >= 1"> -->
-                <ul>
-                    <li v-for="(j, i) of kelas">{{ i+1 }} - {{ j }}</li>
-                </ul>
-            </template>
-            <li v-else>kelas belum tersedia</li>
-        <br>
-            <!-- <a :class="{active: menu === 'home'}" href="#" @click="gantimenu('home', $event)">Home</a>
-            <a :class="{active: menu === 'about'}" href="#" @click="gantimenu('about', $event)">About</a>
-            <a :class="{active: menu === 'blog'}" href="#" @click="gantimenu('blog', $event)">Blog</a> -->
-            <a :class="{active: menu === 'home'}" href="#" @click.prevent="gantimenu('home')">Home</a>
-            <a :class="{active: menu === 'about'}" href="#" @click.prevent="gantimenu('about')">About</a>
-            <a :class="{active: menu === 'blog'}" href="#" @click.prevent="gantimenu('blog')">Blog</a>
-        </div>
-            `,
-            data: function(){
-                return{
-                    menu: "home",
-                    kelas: ['golang', 'php'],
-                    kelasbaru: ""
-                }
-            },
-            methods: {
-                gantimenu: function(menubaru, event){
-                    // event.preventDefault()
-                    // console.log(event)
-                    this.menu = menubaru
-                },
-                submit: function(){
-                    this.kelas.unshift(this.kelasbaru)
-                    this.kelasbaru = ""
-                }
-            }
+        
+        const routes = [
+            { path: '/', component: Home },
+            { path: '/about', component: About },
+            { path: '/kelas', component: Kelas }
+        ]
+        const router = new VueRouter({
+            routes // short for `routes: routes`
         })
+
         const member = {
-          
+            kelas: ['golang', 'php'],
         }
+        
         const vm = new Vue({
             el: '#app',
+            router,
+            components: {
+                'home': Home
+            },
             data: member,
+            methods: {
+                hapuskelas: function(i){
+                    this.kelas.splice(i, 1)
+                },
+                submitkelas: function(event){
+                    const text = event.target.value
+                    this.kelas.unshift(text)
+                }
+            },
             computed: {
                 
             }
