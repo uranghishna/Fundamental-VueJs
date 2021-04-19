@@ -23,7 +23,7 @@
 
     <div id="app">
         <header-component nama="VueJs" gambar="image/logo.png"></header-component>
-        
+
         <nav>
             <router-link to="/">Home</router-link>
             <router-link to="/about">About</router-link>
@@ -46,6 +46,7 @@
     </div>
     <script src="https://cdn.jsdelivr.net/npm/vue@2.6.12"></script>
     <script src="https://unpkg.com/vue-router/dist/vue-router.js"></script>
+    <script src="https://unpkg.com/uuid@latest/dist/umd/uuidv4.min.js"></script>
     <script>
         const Home = {
             template: '<div>Home</div>'
@@ -58,15 +59,32 @@
             template: `
             <div>
                 <h2>Tambah Kelas</h2>
-                <!-- <p><input type="text" placeholder="Nama Kelas" v-on:keyup.enter="submit"></p> -->
-                <p><input type="text" placeholder="Nama Kelas" v-on:keyup.enter="$emit('submitkelas', $event)"></p>
-            <hr>
+                <!-- <p><input type="text" placeholder="Nama Kelas" v-on:keyup.enter="submit"></p>
+                <p><input type="text" placeholder="Nama Kelas" v-on:keyup.enter="$emit('submitkelas', $event)"></p> -->
+                
+                <form v-on:submit.prevent="submitkelas">
+                    <p><input type="text" v-model="kelas.judul" placeholder="Nama Kelas"></p>
+                    <div class="input-group">
+                        <label>Deskripsi:</label><br>
+                        <textarea v-model="kelas.deskripsi"></textarea>
+                    </div>
+                    
+                    <div class="input-group">
+                        <p><img :src="previewimg" v-if="previewimg" width="200"/></p>
+                        <label>Masukan Gambar</label><br>
+                        <input type="file" v-on:change="upload">
+                    </div>
+
+                    <button type="submit">Submit</button>
+                </form>
+
+                <hr>
                 <h4>daftar kelas ({{item.length}})</h4>
                 <template v-if="item.length >= 1">
                 <!-- <ul v-show="item.length >= 1"> -->
                     <ul>
-                        <li v-for="(j, i) of item">{{ i+1 }} - {{ j }}
-                        <a href="" v-on:click.prevent="$emit('hapuskelas', i)">hapus</a>
+                        <li v-for="(j, i) of item">{{ i+1 }} - {{ j.judul }}
+                        <a href="" v-on:click.prevent="$emit('hapuskelas', j.id)">hapus</a>
                         </li>
                     </ul>
                 </template>
@@ -75,10 +93,33 @@
                 `,
             data: function(){
                 return{
+                    kelas: {
+                        judul: '',
+                        deskripsi: '',
+                        gambar: ''
+                    },
+                    previewimg: ""
                 }
             },
             methods: {
-               
+                submitkelas: function(){
+                    const data = {
+                        id: uuidv4(),
+                        judul: this.kelas.judul,
+                        deskripsi: this.kelas.deskripsi,
+                        gambar: this.kelas.gambar
+                    }
+                    this.$emit('submitkelas', data)
+                    
+                    this.kelas.judul = ""
+                    this.kelas.deskripsi = ""
+                    this.previewimg = ""
+                },
+                upload: function(event){
+                    const namagambar = (event.target.files[0].name)
+                    this.kelas.gambar = namagambar
+                    this.previewimg = URL.createObjectURL(event.target.files[0])
+                }
             }
         }
       
@@ -120,7 +161,11 @@
         })
 
         const member = {
-            kelas: ['golang', 'php'],
+            kelas: [
+                {id: '1', judul: 'VueJs', deskripsi: 'Progressive JavaScript framework', gambar:'vuejs.jpg'},
+                {id: '2', judul: 'ReactJs', deskripsi: 'Simple JavaScript framework', gambar:'reactjs.png'},
+                {id: '3', judul: 'Angular', deskripsi: 'Special JavaScript framework', gambar:'angular.png'}
+            ]
         }
         
         const vm = new Vue({
@@ -131,12 +176,13 @@
             },
             data: member,
             methods: {
-                hapuskelas: function(i){
-                    this.kelas.splice(i, 1)
+                hapuskelas: function(id){
+                    this.kelas = this.kelas.filter(j => j.id != id)
+                    
                 },
-                submitkelas: function(event){
-                    const text = event.target.value
-                    this.kelas.unshift(text)
+                submitkelas: function(data){
+                    console.log(data)
+                    this.kelas.push(data)
                 }
             },
             computed: {
