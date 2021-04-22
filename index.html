@@ -16,6 +16,14 @@
             border: 0;
             padding: 5px;
         }
+
+        .error{
+            color: red;
+        }
+
+        .input-group {
+            margin-bottom: 5px;
+        }
         
     </style>
 </head>
@@ -54,6 +62,9 @@
         const About = {
             template: '<div>About</div>'
         }
+        const NotFound = {
+            template: '<div>Halaman tidak ditemukan</div>'
+        }
         const Kelas = {
             props: ['item'],
             template: `
@@ -63,16 +74,20 @@
                 <p><input type="text" placeholder="Nama Kelas" v-on:keyup.enter="$emit('submitkelas', $event)"></p> -->
                 
                 <form v-on:submit.prevent="submitkelas">
-                    <p><input type="text" v-model="kelas.judul" placeholder="Nama Kelas"></p>
+                    <div class="input-group">
+                        <input type="text" v-model="kelas.judul" placeholder="Nama Kelas">
+                        <div class="error" v-if="error.judul"><small>{{ error.judul }}</small></div>    
+                    </div>
                     <div class="input-group">
                         <label>Deskripsi:</label><br>
                         <textarea v-model="kelas.deskripsi"></textarea>
+                        <div class="error" v-if="error.deskripsi"><small>{{ error.deskripsi }}</small></div>
                     </div>
                     
                     <div class="input-group">
                         <p><img :src="previewimg" v-if="previewimg" width="200"/></p>
                         <label>Masukan Gambar</label><br>
-                        <input type="file" v-on:change="upload">
+                        <input type="file" ref="gambar" v-on:change="upload">
                     </div>
 
                     <button type="submit">Submit</button>
@@ -83,8 +98,12 @@
                 <template v-if="item.length >= 1">
                 <!-- <ul v-show="item.length >= 1"> -->
                     <ul>
-                        <li v-for="(j, i) of item">{{ i+1 }} - {{ j.judul }}
-                        <a href="" v-on:click.prevent="$emit('hapuskelas', j.id)">hapus</a>
+                        <li v-for="(j, i) of item">
+                            <img :src="'image/'+j.gambar" width="200" />
+                            <p>
+                                {{ i+1 }} - {{ j.judul }}
+                                <a href="" v-on:click.prevent="$emit('hapuskelas', j.id)">hapus</a>
+                            </p>
                         </li>
                     </ul>
                 </template>
@@ -98,30 +117,48 @@
                         deskripsi: '',
                         gambar: ''
                     },
-                    previewimg: ""
+                    previewimg: "",
+                    error: {
+                        judul: '',
+                        deskripsi: ''
+
+                    }
                 }
             },
             methods: {
                 submitkelas: function(){
-                    const data = {
-                        id: uuidv4(),
-                        judul: this.kelas.judul,
-                        deskripsi: this.kelas.deskripsi,
-                        gambar: this.kelas.gambar
+                    this.error.judul=""
+                    this.error.deskripsi=""
+
+                    if(this.kelas.judul == '') {
+                        this.error.judul = 'Judul is required'
                     }
-                    this.$emit('submitkelas', data)
-                    
-                    this.kelas.judul = ""
-                    this.kelas.deskripsi = ""
-                    this.previewimg = ""
+                    if(this.kelas.deskripsi == '') {
+                        this.error.deskripsi = 'Deskripsi is required'
+                    }
+                    if(this.kelas.judul && this.kelas.deskripsi){
+                        const data = {
+                            id: uuidv4(),
+                            judul: this.kelas.judul,
+                            deskripsi: this.kelas.deskripsi,
+                            gambar: this.kelas.gambar
+                        }
+                        this.$emit('submitkelas', data)
+                        
+                        this.kelas.judul = ""
+                        this.kelas.deskripsi = ""
+                        this.kelas.gambar = ""
+                        this.previewimg = ""
+                        this.$refs.gambar.value = ""
+                    }
                 },
-                upload: function(event){
-                    const namagambar = (event.target.files[0].name)
-                    this.kelas.gambar = namagambar
-                    this.previewimg = URL.createObjectURL(event.target.files[0])
+                    upload: function(event){
+                        const namagambar = (event.target.files[0].name)
+                        this.kelas.gambar = namagambar
+                        this.previewimg = URL.createObjectURL(event.target.files[0])
+                    }
                 }
             }
-        }
       
       
         Vue.component('header-component', {
@@ -153,20 +190,21 @@
         const routes = [
             { path: '/', component: Home },
             { path: '/about', component: About },
-            { path: '/kelas', component: Kelas }
+            { path: '/kelas', component: Kelas },
+            { path: '*', component: NotFound }
         ]
         const router = new VueRouter({
             mode: 'history',
             routes // short for `routes: routes`
         })
 
-        const member = {
-            kelas: [
-                {id: '1', judul: 'VueJs', deskripsi: 'Progressive JavaScript framework', gambar:'vuejs.jpg'},
-                {id: '2', judul: 'ReactJs', deskripsi: 'Simple JavaScript framework', gambar:'reactjs.png'},
-                {id: '3', judul: 'Angular', deskripsi: 'Special JavaScript framework', gambar:'angular.png'}
-            ]
-        }
+        // const member = {
+        //     kelas: [
+        //         {id: '1', judul: 'VueJs', deskripsi: 'Progressive JavaScript framework', gambar:'vuejs.jpg'},
+        //         {id: '2', judul: 'ReactJs', deskripsi: 'Simple JavaScript framework', gambar:'reactjs.png'},
+        //         {id: '3', judul: 'Angular', deskripsi: 'Special JavaScript framework', gambar:'angular.png'}
+        //     ]
+        // },
         
         const vm = new Vue({
             el: '#app',
@@ -174,7 +212,13 @@
             components: {
                 'home': Home
             },
-            data: member,
+            // data: member.
+            data: {
+                kelas: []
+            },
+            created(){
+                this.kelas = JSON.parse(localStorage.getItem('kelas')) || []
+            },
             methods: {
                 hapuskelas: function(id){
                     this.kelas = this.kelas.filter(j => j.id != id)
@@ -183,6 +227,7 @@
                 submitkelas: function(data){
                     console.log(data)
                     this.kelas.push(data)
+                    localStorage.setItem('kelas', JSON.stringify(this.kelas))
                 }
             },
             computed: {
