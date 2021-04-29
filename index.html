@@ -55,6 +55,7 @@
     <script src="https://cdn.jsdelivr.net/npm/vue@2.6.12"></script>
     <script src="https://unpkg.com/vue-router/dist/vue-router.js"></script>
     <script src="https://unpkg.com/uuid@latest/dist/umd/uuidv4.min.js"></script>
+    <script src="//cdn.jsdelivr.net/npm/sweetalert2@10"></script>
     <script>
         const Home = {
             template: '<div>Home</div>'
@@ -207,7 +208,6 @@
         // },
         
         const vm = new Vue({
-            el: '#app',
             router,
             components: {
                 'home': Home
@@ -218,22 +218,52 @@
             },
             created(){
                 this.kelas = JSON.parse(localStorage.getItem('kelas')) || []
+                console.log('created')
+            },
+            beforeCreate() {
+                console.log('before-created')
+            },
+            mounted() {
+                console.log('mounted')
+            },
+            beforeUpdate() {
+                console.log('before-created')
+            },
+            updated() {
+                console.log('updated')
             },
             methods: {
                 hapuskelas: function(id){
                     this.kelas = this.kelas.filter(j => j.id != id)
-                    
+                    localStorage.setItem('kelas', JSON.stringify(this.kelas))
+
+                    Swal.fire({
+                    position: 'top-end',
+                    icon: 'warning',
+                    title: 'Data Berhasil Dihapus',
+                    showConfirmButton: false,
+                    timer: 1500
+                    })
                 },
                 submitkelas: function(data){
                     console.log(data)
                     this.kelas.push(data)
                     localStorage.setItem('kelas', JSON.stringify(this.kelas))
+
+                    Swal.fire({
+                    position: 'top-end',
+                    icon: 'success',
+                    title: 'Data Berhasil Disimpan',
+                    showConfirmButton: false,
+                    timer: 1500
+                    })
                 }
             },
             computed: {
                 
             }
         })
+        vm.$mount('#app')
     </script>
 </body>
 </html>
