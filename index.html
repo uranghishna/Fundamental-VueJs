@@ -52,6 +52,9 @@
             <p>copyright 2021</p>
         </footer-component>
     </div>
+
+
+
     <script src="https://cdn.jsdelivr.net/npm/vue@2.6.12"></script>
     <script src="https://unpkg.com/vue-router/dist/vue-router.js"></script>
     <script src="https://unpkg.com/uuid@latest/dist/umd/uuidv4.min.js"></script>
@@ -65,6 +68,30 @@
         }
         const NotFound = {
             template: '<div>Halaman tidak ditemukan</div>'
+        }
+        const detailKelas = {
+            template : `<div>
+                    <img :src="'image/'+detailkelas.gambar" width="200" />
+                    <h3>{{ detailKelas.judul }} {{ $route.params.idkelas }} </h3>
+                    <p>{{ detailKelas.deskripsi }}</p>
+                    <router-link to="/kelas">kembali</router-link>
+                    </div>`,
+                    data(){
+                        return{
+                            detailKelas: {}
+                        }
+                    },
+                    created(){
+                        this.filterkelas()
+                    },
+                    methods: {
+                        filterkelas(){
+                            let kelas = JSON.parse(localStorage.getItem('kelas'))
+                            let id = this.$route.params.idkelas
+                            let data = kelas.filter(k => k.id == id)
+                            this.detailKelas = data[0]
+                        }
+                    }
         }
         const Kelas = {
             props: ['item'],
@@ -104,6 +131,7 @@
                             <p>
                                 {{ i+1 }} - {{ j.judul }}
                                 <a href="" v-on:click.prevent="$emit('hapuskelas', j.id)">hapus</a>
+                                <router-link :to="'/kelas/' +j.id">lihat kelas</router-link>
                             </p>
                         </li>
                     </ul>
@@ -192,6 +220,10 @@
             { path: '/', component: Home },
             { path: '/about', component: About },
             { path: '/kelas', component: Kelas },
+            {
+                path: '/kelas/:idkelas',
+                component: detailKelas
+            },
             { path: '*', component: NotFound }
         ]
         const router = new VueRouter({
