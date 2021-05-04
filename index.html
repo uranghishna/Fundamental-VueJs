@@ -59,6 +59,31 @@
     <script src="https://unpkg.com/vue-router/dist/vue-router.js"></script>
     <script src="https://unpkg.com/uuid@latest/dist/umd/uuidv4.min.js"></script>
     <script src="//cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+
+        <!-- The core Firebase JS SDK is always required and must be listed first -->
+    <script src="https://www.gstatic.com/firebasejs/8.4.3/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.4.3/firebase-database.js"></script>
+    <!-- TODO: Add SDKs for Firebase products that you want to use
+        https://firebase.google.com/docs/web/setup#available-libraries -->
+
+    <script>
+    // Your web app's Firebase configuration
+    var firebaseConfig = {
+        apiKey: "AIzaSyA6i6Zw9Xyxcn-0toSEYt9aGt7rBcZ0X8s",
+        authDomain: "vuejs-dasar.firebaseapp.com",
+        databaseURL: "https://vuejs-dasar-default-rtdb.asia-southeast1.firebasedatabase.app",
+        projectId: "vuejs-dasar",
+        storageBucket: "vuejs-dasar.appspot.com",
+        messagingSenderId: "889937485511",
+        appId: "1:889937485511:web:78e9f1696ede3186fd28e2"
+    };
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    const database = firebase.database()
+
+    const kelasRef=database.ref('kelas')
+    </script>
+
     <script>
         const Home = {
             template: '<div>Home</div>'
@@ -71,7 +96,7 @@
         }
         const detailKelas = {
             template : `<div>
-                    <img :src="'image/'+detailkelas.gambar" width="200" />
+                    <img :src="url_gambar(detailKelas.gambar)" width="200" />
                     <h3>{{ detailKelas.judul }} {{ $route.params.idkelas }} </h3>
                     <p>{{ detailKelas.deskripsi }}</p>
                     <router-link to="/kelas">kembali</router-link>
@@ -90,7 +115,10 @@
                             let id = this.$route.params.idkelas
                             let data = kelas.filter(k => k.id == id)
                             this.detailKelas = data[0]
-                        }
+                        },
+                        url_gambar: function(gambar){
+                        return '../image/' +gambar
+                    }
                     }
         }
         const Kelas = {
@@ -127,7 +155,7 @@
                 <!-- <ul v-show="item.length >= 1"> -->
                     <ul>
                         <li v-for="(j, i) of item">
-                            <img :src="'image/'+j.gambar" width="200" />
+                            <img :src="url_gambar(j.gambar)" width="200" />
                             <p>
                                 {{ i+1 }} - {{ j.judul }}
                                 <a href="" v-on:click.prevent="$emit('hapuskelas', j.id)">hapus</a>
@@ -185,6 +213,9 @@
                         const namagambar = (event.target.files[0].name)
                         this.kelas.gambar = namagambar
                         this.previewimg = URL.createObjectURL(event.target.files[0])
+                    },
+                    url_gambar: function(gambar){
+                        return 'image/' +gambar
                     }
                 }
             }
@@ -249,8 +280,9 @@
                 kelas: []
             },
             created(){
-                this.kelas = JSON.parse(localStorage.getItem('kelas')) || []
-                console.log('created')
+                // this.kelas = JSON.parse(localStorage.getItem('kelas')) || []
+                // console.log('created')
+                kelasRef.on('value', this.resultData, this.errorData)
             },
             beforeCreate() {
                 console.log('before-created')
@@ -265,6 +297,12 @@
                 console.log('updated')
             },
             methods: {
+                resultData(j){
+                    console.log(j.val())
+                },
+                errorData(error){
+                    console.log(error)
+                },
                 hapuskelas: function(id){
                     this.kelas = this.kelas.filter(j => j.id != id)
                     localStorage.setItem('kelas', JSON.stringify(this.kelas))
