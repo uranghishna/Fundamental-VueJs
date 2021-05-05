@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" href="image/logo.png">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Quicksand&display=swap">
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <title>Vue Beginners 3</title>
+</head>
+<body>
+
+    <div id="app">
+        <header-component nama="VueJs"></header-component>
+
+        <nav>
+            <router-link to="/">Home</router-link>
+            <router-link to="/about">About</router-link>
+            <router-link to="/kelas">Kelas</router-link>
+        </nav>
+
+        <main>
+            <div>
+                <!-- <kelas v-bind:item="kelas" :input="kelasbaru"/> -->
+                <!-- <kelas v-bind:item="kelas" v-on:submitkelas="submitkelas" v-on:hapuskelas="hapuskelas"></kelas> -->
+                <hr>
+                <!-- <home></home> -->
+                <router-view v-bind:item="kelas" v-on:submitkelas="submitkelas" v-on:hapuskelas="hapuskelas"></router-view>
+            </div>
+        </main>
+
+        <footer-component>
+            <p>copyright 2021</p>
+        </footer-component>
+    </div>
+
+
+
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.12"></script>
+    <script src="https://unpkg.com/vue-router/dist/vue-router.js"></script>
+    <script src="https://unpkg.com/uuid@latest/dist/umd/uuidv4.min.js"></script>
+    <script src="//cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+
+        <!-- The core Firebase JS SDK is always required and must be listed first -->
+    <script src="https://www.gstatic.com/firebasejs/8.4.3/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.4.3/firebase-database.js"></script>
+    <!-- TODO: Add SDKs for Firebase products that you want to use
+        https://firebase.google.com/docs/web/setup#available-libraries -->
+    <script src="firebase.js"></script>
+    <script src="components.js"></script>
+    <script src="router.js"></script>
+    <script>
+
+        // const member = {
+        //     kelas: [
+        //         {id: '1', judul: 'VueJs', deskripsi: 'Progressive JavaScript framework', gambar:'vuejs.jpg'},
+        //         {id: '2', judul: 'ReactJs', deskripsi: 'Simple JavaScript framework', gambar:'reactjs.png'},
+        //         {id: '3', judul: 'Angular', deskripsi: 'Special JavaScript framework', gambar:'angular.png'}
+        //     ]
+        // },
+        
+        const vm = new Vue({
+            router,
+            components: {
+                'home': Home
+            },
+            // data: member.
+            data: {
+                kelas: []
+            },
+            created(){
+                // this.kelas = JSON.parse(localStorage.getItem('kelas')) || []
+                // console.log('created')
+                kelasRef.on('value', this.resultData, this.errorData)
+            },
+            // beforeCreate() {
+            //     console.log('before-created')
+            // },
+            // mounted() {
+            //     console.log('mounted')
+            // },
+            // beforeUpdate() {
+            //     console.log('before-created')
+            // },
+            // updated() {
+                // console.log('updated')
+            // },
+            methods: {
+                resultData(item){
+                    this.kelas = []
+                    console.log(item.val())
+                    item.forEach((j) => {
+                        let data = {
+                            id: j.key,
+                            judul: j.val().judul,
+                            deskripsi: j.val().deskripsi,
+                            gambar: j.val().gambar
+                        }
+                        this.kelas.push(data)
+                    })
+                },
+                errorData(error){
+                    console.log(error)
+                },
+                hapuskelas: function(id){
+                    // this.kelas = this.kelas.filter(j => j.id != id)
+                    // localStorage.setItem('kelas', JSON.stringify(this.kelas))
+
+                    database.ref('/kelas/' +id).remove()
+
+                    Swal.fire({
+                    position: 'top-end',
+                    icon: 'warning',
+                    title: 'Data Berhasil Dihapus',
+                    showConfirmButton: false,
+                    timer: 1500
+                    })
+                },
+                submitkelas: function(data){
+                    // console.log(data)
+                    // this.kelas.push(data)
+                    // localStorage.setItem('kelas', JSON.stringify(this.kelas))
+
+                    kelasRef.push({
+                        judul: data.judul,
+                        deskripsi: data.deskripsi,
+                        gambar: data.gambar
+                    })
+
+                    Swal.fire({
+                    position: 'top-end',
+                    icon: 'success',
+                    title: 'Data Berhasil Disimpan',
+                    showConfirmButton: false,
+                    timer: 1500
+                    })
+                }
+            },
+            computed: {
+                
+            }
+        })
+        vm.$mount('#app')
+    </script>
+</body>
+</html>
